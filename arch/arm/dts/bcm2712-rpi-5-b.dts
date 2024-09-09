@@ -319,7 +319,7 @@ dpi_16bit_gpio2:        &rp1_dpi_16bit_gpio2        { };
 &hdmi0 {
 	clocks = <&firmware_clocks 13>, <&firmware_clocks 14>, <&dvp 0>, <&clk_27MHz>;
 	clock-names = "hdmi", "bvb", "audio", "cec";
-	status = "disabled";
+	status = "okay";
 };
 
 &hdmi1 {
