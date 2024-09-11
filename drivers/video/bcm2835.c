@@ -18,19 +18,22 @@ static int bcm2835_video_probe(struct udevice *dev)
 	int w, h, pitch, bpp;
 	ulong fb_base, fb_size, fb_start, fb_end;
 
-	debug("bcm2835: Query resolution...\n");
+	log_debug("bcm2835: Query resolution...\n");
 	ret = bcm2835_get_video_size(&w, &h);
-	if (ret || w == 0 || h == 0)
+	log_debug("bcm2835: Resolution is %d x %d\n", w, h);
+	log_debug("bcm2835: Querying video size ret :: %d \n", ret);
+	if (ret || w == 0 || h == 0) {
 		return -EIO;
+	}
 
-	debug("bcm2835: Setting up display for %d x %d\n", w, h);
+	log_debug("bcm2835: Setting up display for %d x %d\n", w, h);
 	ret = bcm2835_set_video_params(&w, &h, 32, BCM2835_MBOX_PIXEL_ORDER_RGB,
 				       BCM2835_MBOX_ALPHA_MODE_IGNORED,
 				       &fb_base, &fb_size, &pitch);
 	if (ret)
 		return -EIO;
 
-	debug("bcm2835: Final resolution is %d x %d\n", w, h);
+	log_debug("bcm2835: Final resolution is %d x %d\n", w, h);
 
 	/* Enable dcache for the frame buffer */
 	fb_start = fb_base & ~(MMU_SECTION_SIZE - 1);
@@ -49,7 +52,7 @@ static int bcm2835_video_probe(struct udevice *dev)
 		uc_priv->bpix = VIDEO_BPP32;
 		break;
 	default:
-		printf("bcm2835: unexpected bpp %d, pitch %d, width %d\n",
+		log_debug("bcm2835: unexpected bpp %d, pitch %d, width %d\n",
 		       bpp, pitch, w);
 		uc_priv->bpix = VIDEO_BPP32;
 		break;

@@ -68,7 +68,7 @@ int bcm2835_power_on_module(u32 module)
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN,
 				     &msg_pwr->hdr);
 	if (ret) {
-		printf("bcm2835: Could not set module %u power state\n",
+		log_debug("bcm2835: Could not set module %u power state\n",
 		       module);
 		return -EIO;
 	}
@@ -92,7 +92,7 @@ int bcm2835_get_mmc_clock(u32 clock_id)
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_clk->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query eMMC clock rate\n");
+		log_debug("bcm2835: Could not query eMMC clock rate\n");
 		return -EIO;
 	}
 
@@ -105,7 +105,7 @@ int bcm2835_get_mmc_clock(u32 clock_id)
 
 		ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_clk->hdr);
 		if (ret) {
-			printf("bcm2835: Could not query max eMMC clock rate\n");
+			log_debug("bcm2835: Could not query max eMMC clock rate\n");
 			return -EIO;
 		}
 
@@ -127,7 +127,7 @@ int bcm2835_set_sdhost_clock(u32 rate_hz, u32 *rate_1, u32 *rate_2)
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_sdhost_clk->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query sdhost clock rate\n");
+		log_debug("bcm2835: Could not query sdhost clock rate\n");
 		return -EIO;
 	}
 
@@ -147,7 +147,7 @@ int bcm2835_get_video_size(int *widthp, int *heightp)
 				     GET_PHYSICAL_W_H);
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_query->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query display resolution\n");
+		log_debug("bcm2835: Could not query display resolution\n");
 		return ret;
 	}
 	*widthp = msg_query->physical_w_h.body.resp.width;
@@ -190,7 +190,7 @@ int bcm2835_set_video_params(int *widthp, int *heightp, int depth_bpp,
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg_setup->hdr);
 	if (ret) {
-		printf("bcm2835: Could not configure display\n");
+		log_debug("bcm2835: Could not configure display\n");
 		return ret;
 	}
 	*widthp = msg_setup->physical_w_h.body.resp.width;
@@ -238,7 +238,7 @@ int bcm2711_notify_vl805_reset(void)
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN,
 				     &msg_notify_vl805_reset->hdr);
 	if (ret) {
-		printf("bcm2711: Failed to load vl805's firmware, %d\n", ret);
+		log_debug("bcm2711: Failed to load vl805's firmware, %d\n", ret);
 		return -EIO;
 	}
 

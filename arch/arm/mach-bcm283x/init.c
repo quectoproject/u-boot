@@ -206,7 +206,7 @@ int mach_cpu_init(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	printf("CPU: BCM283x\n");
+	log_debug("CPU: BCM283x\n");
 	return 0;
 }
 #endif
