@@ -21,10 +21,10 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 	ulong endtime = get_timer(0) + TIMEOUT;
 	u32 val;
 
-	debug("time: %lu timeout: %lu\n", get_timer(0), endtime);
+	log_debug("time: %lu timeout: %lu\n", get_timer(0), endtime);
 
 	if (send & BCM2835_CHAN_MASK) {
-		printf("mbox: Illegal mbox data 0x%08x\n", send);
+		log_debug("mbox: Illegal mbox data 0x%08x\n", send);
 		return -1;
 	}
 
@@ -35,7 +35,7 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 		if (val & BCM2835_MBOX_STATUS_RD_EMPTY)
 			break;
 		if (get_timer(0) >= endtime) {
-			printf("mbox: Timeout draining stale responses\n");
+			log_debug("mbox: Timeout draining stale responses\n");
 			return -1;
 		}
 		val = readl(&regs->read);
@@ -48,7 +48,7 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 		if (!(val & BCM2835_MBOX_STATUS_WR_FULL))
 			break;
 		if (get_timer(0) >= endtime) {
-			printf("mbox: Timeout waiting for send space\n");
+			log_debug("mbox: Timeout waiting for send space\n");
 			return -1;
 		}
 	}
@@ -56,7 +56,7 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 	/* Send the request */
 
 	val = BCM2835_MBOX_PACK(chan, send);
-	debug("mbox: TX raw: 0x%08x\n", val);
+	log_debug("mbox: TX raw: 0x%08x\n", val);
 	writel(val, &regs->write);
 
 	/* Wait for the response */
@@ -66,7 +66,7 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 		if (!(val & BCM2835_MBOX_STATUS_RD_EMPTY))
 			break;
 		if (get_timer(0) >= endtime) {
-			printf("mbox: Timeout waiting for response\n");
+			log_debug("mbox: Timeout waiting for response\n");
 			return -1;
 		}
 	}
@@ -74,12 +74,12 @@ int bcm2835_mbox_call_raw(u32 chan, u32 send, u32 *recv)
 	/* Read the response */
 
 	val = readl(&regs->read);
-	debug("mbox: RX raw: 0x%08x\n", val);
+	log_debug("mbox: RX raw: 0x%08x\n", val);
 
 	/* Validate the response */
 
 	if (BCM2835_MBOX_UNPACK_CHAN(val) != chan) {
-		printf("mbox: Response channel mismatch\n");
+		log_debug("mbox: Response channel mismatch\n");
 		return -1;
 	}
 
@@ -98,7 +98,7 @@ void dump_buf(struct bcm2835_mbox_hdr *buffer)
 	p = (u32 *)buffer;
 	words = buffer->buf_size / 4;
 	for (i = 0; i < words; i++)
-		printf("    0x%04x: 0x%08x\n", i * 4, p[i]);
+		log_debug("    0x%04x: 0x%08x\n", i * 4, p[i]);
 }
 #endif
 
@@ -110,7 +110,7 @@ int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer)
 	int tag_index;
 
 #ifdef DEBUG
-	printf("mbox: TX buffer\n");
+	log_debug("mbox: TX buffer\n");
 	dump_buf(buffer);
 #endif
 
@@ -129,19 +129,19 @@ int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer)
 				roundup(buffer->buf_size, ARCH_DMA_MINALIGN)));
 
 	if (rbuffer != phys_to_bus((unsigned long)buffer)) {
-		printf("mbox: Response buffer mismatch\n");
+		log_debug("mbox: Response buffer mismatch\n");
 		return -1;
 	}
 
 #ifdef DEBUG
-	printf("mbox: RX buffer\n");
+	log_debug("mbox: RX buffer\n");
 	dump_buf(buffer);
 #endif
 
 	/* Validate overall response status */
 
 	if (buffer->code != BCM2835_MBOX_RESP_CODE_SUCCESS) {
-		printf("mbox: Header response code invalid\n");
+		log_debug("mbox: Header response code invalid\n");
 		return -1;
 	}
 
@@ -151,7 +151,7 @@ int bcm2835_mbox_call_prop(u32 chan, struct bcm2835_mbox_hdr *buffer)
 	tag_index = 0;
 	while (tag->tag) {
 		if (!(tag->val_len & BCM2835_MBOX_TAG_VAL_LEN_RESPONSE)) {
-			printf("mbox: Tag %d missing val_len response bit\n",
+			log_debug("mbox: Tag %d missing val_len response bit\n",
 				tag_index);
 			return -1;
 		}

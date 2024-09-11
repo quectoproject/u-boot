@@ -12,6 +12,7 @@
 #include <init.h>
 #include <memalign.h>
 #include <mmc.h>
+#include <log.h>
 #include <asm/gpio.h>
 #include <asm/arch/mbox.h>
 #include <asm/arch/msg.h>
@@ -280,7 +281,7 @@ int dram_init(void)
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query ARM memory size\n");
+		log_debug("bcm2835: Could not query ARM memory size\n");
 		return -1;
 	}
 
@@ -361,7 +362,7 @@ static void set_usbethaddr(void)
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query MAC address\n");
+		log_debug("bcm2835: Could not query MAC address\n");
 		/* Ignore error; not critical */
 		return;
 	}
@@ -404,7 +405,7 @@ static void set_serial_number(void)
 
 	ret = bcm2835_mbox_call_prop(BCM2835_MBOX_PROP_CHAN, &msg->hdr);
 	if (ret) {
-		printf("bcm2835: Could not query board serial\n");
+		log_debug("bcm2835: Could not query board serial\n");
 		/* Ignore error; not critical */
 		return;
 	}
@@ -443,13 +444,13 @@ static void get_board_revision(void)
 		/* Ignore error; not critical */
 		node = ofnode_path("/system");
 		if (!ofnode_valid(node)) {
-			printf("bcm2835: Could not find /system node\n");
+			log_debug("bcm2835: Could not find /system node\n");
 			return;
 		}
 
 		ret = ofnode_read_u32(node, "linux,revision", &revision);
 		if (ret) {
-			printf("bcm2835: Could not find linux,revision\n");
+			log_debug("bcm2835: Could not find linux,revision\n");
 			return;
 		}
 	} else {
@@ -479,16 +480,16 @@ static void get_board_revision(void)
 		models_count = ARRAY_SIZE(rpi_models_old_scheme);
 	}
 	if (rev_type >= models_count) {
-		printf("RPI: Board rev 0x%x outside known range\n", rev_type);
+		log_debug("RPI: Board rev 0x%x outside known range\n", rev_type);
 		model = &rpi_model_unknown;
 	} else if (!models[rev_type].name) {
-		printf("RPI: Board rev 0x%x unknown\n", rev_type);
+		log_debug("RPI: Board rev 0x%x unknown\n", rev_type);
 		model = &rpi_model_unknown;
 	} else {
 		model = &models[rev_type];
 	}
 
-	printf("RPI %s (0x%x)\n", model->name, revision);
+	log_debug("RPI %s (0x%x)\n", model->name, revision);
 }
 
 int board_init(void)
